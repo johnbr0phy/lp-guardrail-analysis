@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Competitor Report: Landing Page Modules & Guardrails</title>
+    <style>
+        /* --- Basic Reset & Body Styles --- */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
+            color: #333;
+            overflow: hidden; /* Prevent scrollbars from body */
+            line-height: 1.6;
+        }
+
+        /* --- Three.js Canvas Container --- */
+        #canvas-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        canvas {
+            display: block; /* Remove default inline spacing */
+        }
+
+        /* --- Overlay & Info Panels --- */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start; /* Align intro text top */
+            pointer-events: none; /* Allow clicks to pass through initially */
+            padding: 20px;
+        }
+
+        .intro-text {
+            background-color: rgba(0, 0, 0, 0.6);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+            max-width: 600px;
+            pointer-events: auto; /* Allow interaction with intro text */
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .info-panel {
+            position: fixed; /* Changed from absolute for centering */
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90%;
+            max-width: 800px;
+            max-height: 80vh; /* Limit height */
+            overflow-y: auto; /* Allow scrolling if content overflows */
+            background-color: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            z-index: 3;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.4s ease-in-out, visibility 0.4s ease-in-out;
+            pointer-events: none; /* Initially no interaction */
+        }
+
+        .info-panel.visible {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto; /* Allow interaction when visible */
+        }
+
+        .info-panel h2 {
+            color: #1a73e8; /* Stensul-like blue */
+            margin-bottom: 20px;
+            border-bottom: 2px solid #e0e0e0;
+            padding-bottom: 10px;
+        }
+
+         .info-panel h3 {
+            color: #333;
+            margin-top: 25px;
+            margin-bottom: 10px;
+         }
+
+        .info-panel p, .info-panel ul {
+            margin-bottom: 15px;
+            color: #555;
+        }
+
+         .info-panel ul {
+            list-style: disc;
+            margin-left: 25px;
+         }
+
+         .info-panel li {
+            margin-bottom: 8px;
+         }
+
+        .info-panel img.screenshot {
+            max-width: 100%;
+            height: auto;
+            border-radius: 6px;
+            margin-top: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            background-color: #eee; /* Placeholder bg */
+        }
+
+        .close-button {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: #eee;
+            border: none;
+            font-size: 24px;
+            font-weight: bold;
+            color: #888;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            cursor: pointer;
+            line-height: 35px;
+            text-align: center;
+            transition: background-color 0.2s, color 0.2s;
+        }
+
+        .close-button:hover {
+            background-color: #ddd;
+            color: #333;
+        }
+
+        /* --- Competitor Specific Colors (Example) --- */
+        .hubspot-color { background-color: #FF7A59; } /* Orange */
+        .knak-color { background-color: #671cc9; } /* Purple */
+        .unbounce-color { background-color: #00A3E0; } /* Blue */
+
+    </style>
+</head>
+<body>
+    <!-- Container for the Three.js canvas -->
+    <div id="canvas-container"></div>
+
+    <!-- Overlay for instructions and info panels -->
+    <div class="overlay">
+        <div class="intro-text">
+            <h1>Landing Page Module Analysis</h1>
+            <p>Click on a spinning cube to explore how competitors handle landing page modules and guardrails.</p>
+            <small>(Use your mouse to rotate the view)</small>
+        </div>
+
+        <!-- Info Panels (Initially Hidden) -->
+        <div id="info-hubspot" class="info-panel">
+            <button class="close-button">×</button>
+            <h2>HubSpot CMS Hub</h2>
+            <p>HubSpot allows building reusable components called "Modules" within their Design Manager. These can range from simple elements to complex sections.</p>
+
+            <h3>Module Creation & Saving:</h3>
+            <ul>
+                <li>Developers/Designers create custom modules using HTML, HubL (HubSpot's templating language), CSS, and JS.</li>
+                <li>Modules are saved within the Design Manager and can be organized into folders.</li>
+                <li>Users can also save pre-made sections from a page as "Saved Sections" (simpler, less customizable than full modules).</li>
+            </ul>
+
+            <h3>Guardrails & Restrictions:</h3>
+            <ul>
+                <li><strong>Field Locking:</strong> Content editors can be restricted from editing specific fields within a module (e.g., locking a headline text but allowing body text changes).</li>
+                <li><strong>Style Fields:</strong> Theme and module settings allow defining brand styles (colors, fonts, spacing) that content editors select from, rather than setting arbitrary values.</li>
+                <li><strong>Content Options:</strong> Module fields can enforce types (text, image, rich text, boolean) and provide default values.</li>
+                <li><strong>Global Modules:</strong> Content edited in one instance of a global module updates everywhere it's used (good for headers/footers).</li>
+                <li><strong>Theme Settings:</strong> Control global styles applied across all pages using the theme.</li>
+            </ul>
+            <img src="https://via.placeholder.com/600x300/FF7A59/ffffff?text=HubSpot+Module+Editor+(Example)" alt="Hubspot Module Example" class="screenshot">
+            <p><em>Note: Granularity of locking often depends on how the module was initially built by the developer.</em></p>
+        </div>
+
+        <div id="info-knak" class="info-panel">
+            <button class="close-button">×</button>
+            <h2>Knak</h2>
+            <p>Knak is heavily focused on enterprise email and landing page creation with strong emphasis on brand consistency and scalability through modularity.</p>
+
+            <h3>Module Creation & Saving:</h3>
+            <ul>
+                <li>Knak uses a dedicated "Module Library" where approved, on-brand modules are stored.</li>
+                <li>Modules are typically built by Knak or a designated internal team to ensure compliance.</li>
+                <li>Users assemble landing pages by dragging and dropping these pre-approved modules.</li>
+            </ul>
+
+            <h3>Guardrails & Restrictions:</h3>
+            <ul>
+                <li><strong>Strict Content Locking:</strong> Knak allows very granular locking. Specific text elements, images, buttons, links, and styling aspects within a module can be locked down.</li>
+                <li><strong>Editable Zones:</strong> Administrators define exactly which parts of a module non-admin users can edit (e.g., only the body text and CTA button link).</li>
+                <li><strong>Brand Kit Enforcement:</strong> Colors, fonts, logos, and spacing are centrally managed in a Brand Kit and enforced within modules, preventing off-brand choices.</li>
+                <li><strong>User Permissions:</strong> Different user roles can have access to different sets of modules or varying editing capabilities.</li>
+                <li><strong>Syncing with MAP/CRM:</strong> Ensures campaign structure and data flow are correctly configured.</li>
+            </ul>
+            <img src="https://via.placeholder.com/600x300/671cc9/ffffff?text=Knak+Module+Library+(Example)" alt="Knak Module Example" class="screenshot">
+            <p><em>Note: Knak's main value proposition revolves around these robust guardrails for large, brand-conscious teams.</em></p>
+        </div>
+
+        <div id="info-unbounce" class="info-panel">
+            <button class="close-button">×</button>
+            <h2>Unbounce</h2>
+            <p>Unbounce is a popular landing page platform focused on conversion optimization, offering features for teams but perhaps less rigid enterprise guardrails compared to Knak.</p>
+
+            <h3>Module Creation & Saving:</h3>
+            <ul>
+                <li>Users can save sections of a page they've built as "Page Sections" (similar to HubSpot's Saved Sections).</li>
+                <li>These saved sections can be easily reused across different landing pages.</li>
+                <li>Unbounce also has "Global Blocks" for elements like headers/footers that need consistency.</li>
+                <li>Template creation allows standardizing full page layouts.</li>
+            </ul>
+
+            <h3>Guardrails & Restrictions:</h3>
+            <ul>
+                <li><strong>Style Guide (Basic):</strong> Allows setting default colors and fonts for text elements within the builder.</li>
+                <li><strong>Templates:</strong> Using templates provides a starting point, enforcing initial layout and structure.</li>
+                <li><strong>User Roles & Permissions:</strong> Enterprise plans offer roles (Admin, Author, Viewer) which restrict actions like publishing or deleting pages, but less granular *content* locking within a block/module itself compared to HubSpot Modules or Knak.</li>
+                <li><strong>Limited Structural Locking:</strong> While templates define structure, users often have significant freedom to modify, add, or delete elements within sections unless using very basic templates. Less focus on locking *down* specific content fields within a reusable block.</li>
+            </ul>
+            <img src="https://via.placeholder.com/600x300/00A3E0/ffffff?text=Unbounce+Saved+Section+(Example)" alt="Unbounce Section Example" class="screenshot">
+             <p><em>Note: Unbounce prioritizes flexibility and speed for marketers; guardrails are present but may be less restrictive by default than platforms built primarily for enterprise brand control.</em></p>
+        </div>
+    </div>
+
+    <!-- Import map for Three.js ES Modules -->
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+          "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+        }
+      }
+    </script>
+
+    <!-- Main JavaScript Logic -->
+    <script type="module">
+        import * as THREE from 'three';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+        let scene, camera, renderer, controls;
+        const canvasContainer = document.getElementById('canvas-container');
+        const infoPanels = document.querySelectorAll('.info-panel');
+        const closeButtons = document.querySelectorAll('.close-button');
+        const raycaster = new THREE.Raycaster();
+        const mouse = new THREE.Vector2();
+        const competitors = []; // To store clickable competitor meshes
+
+        function init() {
+            // --- Scene Setup ---
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0xf0f2f5); // Match body background
+
+            // --- Camera Setup ---
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.z = 5;
+
+            // --- Renderer Setup ---
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
+            canvasContainer.appendChild(renderer.domElement);
+
+            // --- Lighting ---
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.7); // Soft white light
+            scene.add(ambientLight);
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+            directionalLight.position.set(5, 10, 7.5);
+            scene.add(directionalLight);
+
+            // --- Competitor Cubes ---
+            const geometry = new THREE.BoxGeometry(1, 1, 1);
+
+            // HubSpot Cube
+            const hubspotMaterial = new THREE.MeshStandardMaterial({ color: 0xFF7A59, roughness: 0.5, metalness: 0.3 });
+            const hubspotCube = new THREE.Mesh(geometry, hubspotMaterial);
+            hubspotCube.position.x = -2;
+            hubspotCube.userData = { id: 'hubspot', name: 'HubSpot' }; // Store identifier
+            scene.add(hubspotCube);
+            competitors.push(hubspotCube);
+
+            // Knak Cube
+            const knakMaterial = new THREE.MeshStandardMaterial({ color: 0x671cc9, roughness: 0.5, metalness: 0.3 });
+            const knakCube = new THREE.Mesh(geometry, knakMaterial);
+            knakCube.position.x = 0;
+            knakCube.userData = { id: 'knak', name: 'Knak' };
+            scene.add(knakCube);
+            competitors.push(knakCube);
+
+            // Unbounce Cube
+            const unbounceMaterial = new THREE.MeshStandardMaterial({ color: 0x00A3E0, roughness: 0.5, metalness: 0.3 });
+            const unbounceCube = new THREE.Mesh(geometry, unbounceMaterial);
+            unbounceCube.position.x = 2;
+            unbounceCube.userData = { id: 'unbounce', name: 'Unbounce' };
+            scene.add(unbounceCube);
+            competitors.push(unbounceCube);
+
+            // --- Controls ---
+            controls = new OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true; // Smooths rotation
+            controls.dampingFactor = 0.05;
+            controls.screenSpacePanning = false;
+            controls.minDistance = 3;
+            controls.maxDistance = 10;
+
+            // --- Event Listeners ---
+            window.addEventListener('resize', onWindowResize);
+            canvasContainer.addEventListener('click', onClick); // Listen on canvas container
+            closeButtons.forEach(button => {
+                button.addEventListener('click', hideInfoPanel);
+            });
+
+            // Start Animation Loop
+            animate();
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+            // Rotate cubes
+            competitors.forEach(cube => {
+                cube.rotation.x += 0.005;
+                cube.rotation.y += 0.005;
+            });
+
+            controls.update(); // Required if enableDamping is true
+            renderer.render(scene, camera);
+        }
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        function onClick(event) {
+            // Calculate mouse position in normalized device coordinates (-1 to +1)
+            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+            // Update the picking ray with the camera and mouse position
+            raycaster.setFromCamera(mouse, camera);
+
+            // Calculate objects intersecting the picking ray
+            const intersects = raycaster.intersectObjects(competitors);
+
+            if (intersects.length > 0) {
+                // An object was clicked
+                const clickedObject = intersects[0].object;
+                const competitorId = clickedObject.userData.id;
+
+                if (competitorId) {
+                    showInfoPanel(competitorId);
+                }
+            } else {
+                 // If clicking outside an object while panel is open, maybe close it?
+                 // For now, only clicking the 'x' closes it.
+            }
+        }
+
+        function showInfoPanel(competitorId) {
+            // Hide all panels first
+            infoPanels.forEach(panel => panel.classList.remove('visible'));
+
+            // Show the specific panel
+            const panelToShow = document.getElementById(`info-${competitorId}`);
+            if (panelToShow) {
+                panelToShow.classList.add('visible');
+                // Optional: pause Three.js animation or controls if desired
+                // controls.enabled = false;
+            }
+        }
+
+        function hideInfoPanel() {
+            infoPanels.forEach(panel => panel.classList.remove('visible'));
+             // Optional: resume Three.js animation or controls
+             // controls.enabled = true;
+        }
+
+        // --- Initialize ---
+        init();
+
+    </script>
+</body>
+</html>
